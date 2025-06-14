@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSINT Toolkit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #111827;
+            color: #e5e7eb;
+        }
+        .tool-card {
+            background-color: #1f2937;
+            border: 1px solid #374151;
+        }
+        .btn {
+            background-color: #3b82f6;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #2563eb;
+        }
+        .btn-secondary {
+            background-color: #4b5563;
+        }
+        .btn-secondary:hover {
+            background-color: #374151;
+        }
+        input, select, textarea {
+            background-color: #374151;
+            border: 1px solid #4b5563;
+            color: #e5e7eb;
+        }
+        /* Active state for sidebar */
+        .sidebar-link.active {
+            background-color: #3b82f6;
+            color: white;
+        }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        /* Mobile menu transition */
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Mobile Header & Hamburger Menu -->
+    <header class="bg-gray-900 text-white p-4 flex justify-between items-center md:hidden sticky top-0 z-20">
+        <h1 class="text-xl font-bold text-blue-400">OSINT Toolkit</h1>
+        <button id="hamburger-btn" class="text-2xl">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <div class="flex flex-1">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="bg-gray-900 text-gray-200 w-64 p-4 md:p-6 space-y-2 transform -translate-x-full md:translate-x-0 fixed md:sticky md:top-0 h-screen overflow-y-auto z-30">
+            <div class="flex justify-between items-center md:block text-center mb-6">
+                 <div>
+                    <h1 class="text-2xl font-bold text-blue-400">OSINT Toolkit</h1>
+                    <p class="text-xs text-gray-400 mt-1">By Sujoy Roy</p>
+                    <p class="text-xs text-gray-500">Online Cyber Utilities for Researchers</p>
+                </div>
+                <button id="close-sidebar-btn" class="md:hidden text-2xl text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <nav class="space-y-2">
+                <a href="#dork-generator" class="sidebar-link active flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="dork-generator">
+                    <i class="fas fa-search w-6 text-center"></i><span class="ml-3">Google Dorker</span>
+                </a>
+                <a href="#email-lookup" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="email-lookup">
+                    <i class="fas fa-envelope w-6 text-center"></i><span class="ml-3">Email Lookup</span>
+                </a>
+                <a href="#username-search" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="username-search">
+                    <i class="fas fa-user-secret w-6 text-center"></i><span class="ml-3">Username Search</span>
+                </a>
+                <a href="#metadata-viewer" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="metadata-viewer">
+                    <i class="fas fa-image w-6 text-center"></i><span class="ml-3">Image Metadata</span>
+                </a>
+                <a href="#reverse-image-search" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="reverse-image-search">
+                    <i class="fas fa-camera-rotate w-6 text-center"></i><span class="ml-3">Reverse Image Search</span>
+                </a>
+                <a href="#ip-dns-lookup" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="ip-dns-lookup">
+                    <i class="fas fa-network-wired w-6 text-center"></i><span class="ml-3">IP/DNS Lookup</span>
+                </a>
+                <a href="#subdomain-finder" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="subdomain-finder">
+                    <i class="fas fa-sitemap w-6 text-center"></i><span class="ml-3">Subdomain Finder</span>
+                </a>
+                 <a href="#wayback-machine" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="wayback-machine">
+                    <i class="fas fa-clock-rotate-left w-6 text-center"></i><span class="ml-3">Wayback Machine</span>
+                </a>
+                <a href="#hashing-calculator" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="hashing-calculator">
+                    <i class="fas fa-hashtag w-6 text-center"></i><span class="ml-3">Hashing Calculator</span>
+                </a>
+                <a href="#threat-intel" class="sidebar-link flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-200" data-tool="threat-intel">
+                    <i class="fas fa-shield-virus w-6 text-center"></i><span class="ml-3">Threat Intel</span>
+                </a>
+            </nav>
+            <div class="absolute bottom-4 left-4 right-4 text-center text-xs text-gray-600">
+                Version 1.3.0
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+            <!-- All tool-content sections remain unchanged -->
+            <!-- Google Dork Generator -->
+            <section id="dork-generator" class="tool-content space-y-6">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-search mr-3"></i>Google Dork Generator</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dork-type" class="block text-sm font-medium text-gray-300 mb-1">Dork Type</label>
+                            <select id="dork-type" class="w-full p-2 rounded-md">
+                                <option value="site:">site:</option>
+                                <option value="filetype:">filetype:</option>
+                                <option value="intitle:">intitle:</option>
+                                <option value="inurl:">inurl:</option>
+                                <option value="intext:">intext:</option>
+                                <option value="ext:">ext:</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="dork-keyword" class="block text-sm font-medium text-gray-300 mb-1">Keyword/Domain</label>
+                            <input type="text" id="dork-keyword" placeholder="e.g., example.com or confidential" class="w-full p-2 rounded-md">
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <label for="dork-output" class="block text-sm font-medium text-gray-300 mb-1">Generated Dork</label>
+                        <div class="relative">
+                            <input type="text" id="dork-output" readonly class="w-full p-2 pr-10 rounded-md bg-gray-800 border-gray-600">
+                            <button class="copy-btn absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white" title="Copy to Clipboard" data-target="dork-output">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex space-x-4">
+                        <button id="generate-dork" class="btn-secondary font-bold py-2 px-4 rounded-md flex-1">Generate</button>
+                        <button id="search-dork" class="btn font-bold py-2 px-4 rounded-md flex-1">Search Now</button>
+                    </div>
+                     <div class="copy-feedback text-sm text-green-400 mt-2 h-4"></div>
+                </div>
+            </section>
+    
+            <!-- Email Lookup Helper -->
+            <section id="email-lookup" class="tool-content space-y-6 hidden">
+                 <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-envelope mr-3"></i>Email Lookup Helper</h2>
+                    <div>
+                        <label for="email-input" class="block text-sm font-medium text-gray-300 mb-1">Email Address</label>
+                        <input type="email" id="email-input" placeholder="user@example.com" class="w-full p-2 rounded-md">
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <button id="email-google-search" class="btn font-bold py-2 px-4 rounded-md w-full">Search on Google</button>
+                        <button id="email-hbp-search" class="btn font-bold py-2 px-4 rounded-md w-full">Check HaveIBeenPwned</button>
+                        <button id="email-hunter-search" class="btn font-bold py-2 px-4 rounded-md w-full">Lookup on Hunter.io</button>
+                    </div>
+                     <div class="mt-4 p-4 bg-gray-800 rounded-md text-sm text-gray-400">
+                        <i class="fas fa-info-circle mr-2"></i>These buttons will open new tabs to perform searches on external services.
+                    </div>
+                </div>
+            </section>
+    
+            <!-- Username Search Redirect -->
+            <section id="username-search" class="tool-content space-y-6 hidden">
+                 <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-user-secret mr-3"></i>Username Search</h2>
+                    <div>
+                        <label for="username-input" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                        <input type="text" id="username-input" placeholder="e.g., john-doe" class="w-full p-2 rounded-md">
+                    </div>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <button data-url="https://github.com/{}" class="username-search-btn btn font-bold py-2 px-4 rounded-md w-full"><i class="fab fa-github mr-2"></i>GitHub</button>
+                        <button data-url="https://twitter.com/search?q={}&f=user" class="username-search-btn btn font-bold py-2 px-4 rounded-md w-full"><i class="fab fa-twitter mr-2"></i>Twitter</button>
+                        <button data-url="https://www.instagram.com/{}/" class="username-search-btn btn font-bold py-2 px-4 rounded-md w-full"><i class="fab fa-instagram mr-2"></i>Instagram</button>
+                        <button data-url="https://www.reddit.com/user/{}" class="username-search-btn btn font-bold py-2 px-4 rounded-md w-full"><i class="fab fa-reddit mr-2"></i>Reddit</button>
+                        <button data-url="https://www.facebook.com/search/people/?q={}" class="username-search-btn btn font-bold py-2 px-4 rounded-md w-full"><i class="fab fa-facebook mr-2"></i>Facebook</button>
+                         <button data-url="https://www.linkedin.com/search/results/all/?keywords={}" class="username-search-btn btn font-bold py-2 px-4 rounded-md w-full"><i class="fab fa-linkedin mr-2"></i>LinkedIn</button>
+                    </div>
+                </div>
+            </section>
+    
+            <!-- Image Metadata Viewer -->
+            <section id="metadata-viewer" class="tool-content space-y-6 hidden">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-image mr-3"></i>Image Metadata Viewer (Simulated)</h2>
+                    <div class="p-4 border-2 border-dashed border-gray-600 rounded-lg text-center">
+                         <input type="file" id="image-upload" class="hidden" accept=".jpg, .jpeg, .png">
+                         <label for="image-upload" class="cursor-pointer">
+                            <i class="fas fa-upload text-3xl text-gray-500"></i>
+                            <p class="mt-2 text-sm text-gray-400">Click to upload JPG or PNG</p>
+                        </label>
+                    </div>
+                    <div id="metadata-output" class="mt-4 hidden space-y-2 text-sm">
+                        <!-- Metadata will be injected here -->
+                    </div>
+                    <div class="mt-4 p-4 bg-yellow-900/30 border border-yellow-700 rounded-md text-sm text-yellow-300">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>This is a simulation. For privacy reasons, this tool does not use a real EXIF library and displays dummy data. It demonstrates the *type* of data that can be found in image metadata.
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Reverse Image Search Helper -->
+            <section id="reverse-image-search" class="tool-content space-y-6 hidden">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-camera-rotate mr-3"></i>Reverse Image Search</h2>
+                    <div>
+                        <label for="image-url-input" class="block text-sm font-medium text-gray-300 mb-1">Image URL</label>
+                        <input type="text" id="image-url-input" placeholder="https://example.com/image.jpg" class="w-full p-2 rounded-md">
+                    </div>
+                     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <button data-url="https://images.google.com/searchbyimage?image_url={}" class="reverse-image-btn btn font-bold py-2 px-4 rounded-md w-full">Google Images</button>
+                        <button data-url="https://tineye.com/search?url={}" class="reverse-image-btn btn font-bold py-2 px-4 rounded-md w-full">TinEye</button>
+                        <button data-url="https://yandex.com/images/search?rpt=imageview&url={}" class="reverse-image-btn btn font-bold py-2 px-4 rounded-md w-full">Yandex</button>
+                    </div>
+                     <div class="mt-4 p-4 bg-gray-800 rounded-md text-sm text-gray-400">
+                        <i class="fas fa-info-circle mr-2"></i>Enter the direct URL of an image to search for it on various reverse image search engines.
+                    </div>
+                </div>
+            </section>
+    
+            <!-- IP/DNS Lookup -->
+            <section id="ip-dns-lookup" class="tool-content space-y-6 hidden">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-network-wired mr-3"></i>IP / Domain Lookup</h2>
+                    <div>
+                        <label for="ip-dns-input" class="block text-sm font-medium text-gray-300 mb-1">IP Address or Domain</label>
+                        <input type="text" id="ip-dns-input" placeholder="8.8.8.8 or example.com" class="w-full p-2 rounded-md">
+                    </div>
+                     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                        <button data-url="https://who.is/whois/{}" class="ip-dns-btn btn font-bold py-2 px-4 rounded-md w-full">WHOIS Lookup</button>
+                        <button data-url="https://www.ip-tracker.org/locator/ip-lookup.php?ip={}" class="ip-dns-btn btn font-bold py-2 px-4 rounded-md w-full">IP Geolocation</button>
+                        <button data-url="https://dnschecker.org/#A/{}" class="ip-dns-btn btn font-bold py-2 px-4 rounded-md w-full">DNS Records</button>
+                        <button data-url="https://www.shodan.io/search?query={}" class="ip-dns-btn btn font-bold py-2 px-4 rounded-md w-full">Search on Shodan</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Subdomain Finder -->
+            <section id="subdomain-finder" class="tool-content space-y-6 hidden">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-sitemap mr-3"></i>Subdomain Finder</h2>
+                    <div>
+                        <label for="domain-input" class="block text-sm font-medium text-gray-300 mb-1">Domain</label>
+                        <input type="text" id="domain-input" placeholder="example.com" class="w-full p-2 rounded-md">
+                    </div>
+                     <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+                        <button data-url="https://crt.sh/?q=%25.{}" class="subdomain-btn btn font-bold py-2 px-4 rounded-md w-full">Search crt.sh</button>
+                        <button data-url="https://www.google.com/search?q=site%3A*.{}+-site%3Awww.{}" class="subdomain-btn btn font-bold py-2 px-4 rounded-md w-full">Google Dork</button>
+                        <button data-url="https://securitytrails.com/domain/{}/subdomains" class="subdomain-btn btn font-bold py-2 px-4 rounded-md w-full">SecurityTrails</button>
+                        <button data-url="https://www.virustotal.com/gui/domain/{}/relations" class="subdomain-btn btn font-bold py-2 px-4 rounded-md w-full">VirusTotal</button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Wayback Machine -->
+            <section id="wayback-machine" class="tool-content space-y-6 hidden">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-clock-rotate-left mr-3"></i>Wayback Machine</h2>
+                    <div>
+                        <label for="wayback-input" class="block text-sm font-medium text-gray-300 mb-1">Domain or URL</label>
+                        <input type="text" id="wayback-input" placeholder="example.com" class="w-full p-2 rounded-md">
+                    </div>
+                     <div class="mt-4">
+                        <button id="wayback-search-btn" class="btn font-bold py-2 px-4 rounded-md w-full">Search Archives</button>
+                    </div>
+                    <div class="mt-4 p-4 bg-gray-800 rounded-md text-sm text-gray-400">
+                        <i class="fas fa-info-circle mr-2"></i>Explore historical snapshots of a website using the Internet Archive's Wayback Machine.
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Hashing Calculator -->
+            <section id="hashing-calculator" class="tool-content space-y-6 hidden">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-hashtag mr-3"></i>Hashing Calculator</h2>
+                    <div>
+                        <label for="hash-input" class="block text-sm font-medium text-gray-300 mb-1">Input Text</label>
+                        <textarea id="hash-input" rows="4" placeholder="Enter text or string to hash..." class="w-full p-2 rounded-md"></textarea>
+                    </div>
+                    <div class="mt-4 space-y-3">
+                        <label class="block text-sm font-medium text-gray-300">Generated Hashes:</label>
+                        <div class="space-y-2">
+                            <div class="relative">
+                                <input type="text" id="md5-output" readonly class="w-full p-2 pr-16 rounded-md bg-gray-800 border-gray-600 font-semibold" placeholder="MD5">
+                                <span class="absolute inset-y-0 right-10 flex items-center text-xs text-gray-400">MD5</span>
+                                <button class="copy-btn absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white" title="Copy" data-target="md5-output"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="sha1-output" readonly class="w-full p-2 pr-16 rounded-md bg-gray-800 border-gray-600 font-semibold" placeholder="SHA-1">
+                                 <span class="absolute inset-y-0 right-10 flex items-center text-xs text-gray-400">SHA-1</span>
+                                 <button class="copy-btn absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white" title="Copy" data-target="sha1-output"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="sha256-output" readonly class="w-full p-2 pr-16 rounded-md bg-gray-800 border-gray-600 font-semibold" placeholder="SHA-256">
+                                 <span class="absolute inset-y-0 right-10 flex items-center text-xs text-gray-400">SHA-256</span>
+                                 <button class="copy-btn absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white" title="Copy" data-target="sha256-output"><i class="fas fa-copy"></i></button>
+                            </div>
+                            <div class="relative">
+                                <input type="text" id="sha512-output" readonly class="w-full p-2 pr-16 rounded-md bg-gray-800 border-gray-600 font-semibold" placeholder="SHA-512">
+                                 <span class="absolute inset-y-0 right-10 flex items-center text-xs text-gray-400">SHA-512</span>
+                                 <button class="copy-btn absolute inset-y-0 right-0 px-3 flex items-center text-gray-400 hover:text-white" title="Copy" data-target="sha512-output"><i class="fas fa-copy"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="copy-feedback text-sm text-green-400 mt-2 h-4"></div>
+                </div>
+            </section>
+            
+            <!-- Threat Intel -->
+            <section id="threat-intel" class="tool-content space-y-6 hidden">
+                <div class="tool-card rounded-lg p-6">
+                    <h2 class="text-2xl font-bold mb-4 text-blue-300 flex items-center"><i class="fas fa-shield-virus mr-3"></i>Threat Intelligence Platforms</h2>
+                    <p class="text-gray-400 mb-4">Quick links to popular threat intelligence and malware analysis platforms.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <a href="https://feodotracker.abuse.ch/" target="_blank" rel="noopener noreferrer" class="btn-secondary font-bold py-3 px-4 rounded-md text-center">Feodo Tracker</a>
+                        <a href="https://urlhaus.abuse.ch/browse/" target="_blank" rel="noopener noreferrer" class="btn-secondary font-bold py-3 px-4 rounded-md text-center">URLhaus</a>
+                        <a href="https://bazaar.abuse.ch/browse/" target="_blank" rel="noopener noreferrer" class="btn-secondary font-bold py-3 px-4 rounded-md text-center">MalwareBazaar</a>
+                        <a href="https://threatfox.abuse.ch/browse/" target="_blank" rel="noopener noreferrer" class="btn-secondary font-bold py-3 px-4 rounded-md text-center">ThreatFox</a>
+                        <a href="https://otx.alienvault.com/" target="_blank" rel="noopener noreferrer" class="btn-secondary font-bold py-3 px-4 rounded-md text-center">AlienVault OTX</a>
+                        <a href="https://www.pulsedive.com/" target="_blank" rel="noopener noreferrer" class="btn-secondary font-bold py-3 px-4 rounded-md text-center">Pulsedive</a>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Mobile menu overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden"></div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Mobile Menu Logic ---
+        const sidebar = document.getElementById('sidebar');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const closeSidebarBtn = document.getElementById('close-sidebar-btn');
+        const mobileOverlay = document.getElementById('mobile-overlay');
+
+        function openMobileMenu() {
+            sidebar.classList.remove('-translate-x-full');
+            mobileOverlay.classList.remove('hidden');
+        }
+
+        function closeMobileMenu() {
+            sidebar.classList.add('-translate-x-full');
+            mobileOverlay.classList.add('hidden');
+        }
+
+        hamburgerBtn.addEventListener('click', openMobileMenu);
+        closeSidebarBtn.addEventListener('click', closeMobileMenu);
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+
+        // --- Navigation Logic ---
+        const sidebarLinks = document.querySelectorAll('.sidebar-link');
+        const toolContents = document.querySelectorAll('.tool-content');
+
+        function showTool(toolId) {
+            toolContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            const toolToShow = document.getElementById(toolId);
+            if(toolToShow) {
+                toolToShow.classList.remove('hidden');
+            }
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.dataset.tool === toolId) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Close mobile menu on navigation
+            if (window.innerWidth < 768) { // md breakpoint in Tailwind
+                closeMobileMenu();
+            }
+        }
+
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const toolId = e.currentTarget.dataset.tool;
+                window.location.hash = toolId;
+                showTool(toolId);
+            });
+        });
+        
+        // Handle initial load based on hash or default
+        const initialTool = window.location.hash.substring(1) || 'dork-generator';
+        showTool(initialTool);
+
+
+        // --- Generic Copy Button Logic ---
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const targetId = e.currentTarget.dataset.target;
+                const targetInput = document.getElementById(targetId);
+                const feedbackEl = e.currentTarget.closest('.tool-card').querySelector('.copy-feedback');
+
+                if (targetInput && targetInput.value) {
+                    targetInput.select();
+                    document.execCommand('copy');
+                    if (feedbackEl) {
+                        feedbackEl.textContent = 'Copied to clipboard!';
+                        setTimeout(() => { feedbackEl.textContent = ''; }, 2000);
+                    }
+                }
+            });
+        });
+
+        // --- Google Dork Generator Logic ---
+        const generateDorkBtn = document.getElementById('generate-dork');
+        const searchDorkBtn = document.getElementById('search-dork');
+        const dorkType = document.getElementById('dork-type');
+        const dorkKeyword = document.getElementById('dork-keyword');
+        const dorkOutput = document.getElementById('dork-output');
+
+        function generateDork() {
+            const type = dorkType.value;
+            const keyword = dorkKeyword.value.trim();
+            if (keyword) {
+                dorkOutput.value = `${type}"${keyword}"`;
+            } else {
+                dorkOutput.value = '';
+            }
+        }
+        
+        generateDorkBtn.addEventListener('click', generateDork);
+        dorkKeyword.addEventListener('keyup', generateDork);
+        dorkType.addEventListener('change', generateDork);
+
+        searchDorkBtn.addEventListener('click', () => {
+            const query = dorkOutput.value;
+            if (query) {
+                const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                window.open(searchUrl, '_blank');
+            }
+        });
+
+        // --- Email Lookup Logic ---
+        const emailInput = document.getElementById('email-input');
+        document.getElementById('email-google-search').addEventListener('click', () => {
+            const email = emailInput.value.trim();
+            if (email) window.open(`https://www.google.com/search?q="${encodeURIComponent(email)}"`, '_blank');
+        });
+        document.getElementById('email-hbp-search').addEventListener('click', () => {
+            const email = emailInput.value.trim();
+            if (email) window.open(`https://haveibeenpwned.com/account/${encodeURIComponent(email)}`, '_blank');
+        });
+        document.getElementById('email-hunter-search').addEventListener('click', () => {
+            const email = emailInput.value.trim();
+            if (email) window.open(`https://hunter.io/email-verifier/${encodeURIComponent(email)}`, '_blank');
+        });
+
+        // --- Username Search Logic ---
+        const usernameInput = document.getElementById('username-input');
+        document.querySelectorAll('.username-search-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const username = usernameInput.value.trim();
+                if (username) {
+                    const url = button.dataset.url.replace('{}', encodeURIComponent(username));
+                    window.open(url, '_blank');
+                }
+            });
+        });
+
+        // --- Image Metadata Viewer Logic ---
+        const imageUpload = document.getElementById('image-upload');
+        const metadataOutput = document.getElementById('metadata-output');
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                metadataOutput.classList.remove('hidden');
+                metadataOutput.innerHTML = `
+                    <h3 class="font-bold text-lg text-gray-300">Simulated Metadata for ${file.name}</h3>
+                    <p><strong class="text-blue-300">Camera Model:</strong> Canon EOS R5 (Simulated)</p>
+                    <p><strong class="text-blue-300">Lens:</strong> RF 24-70mm F2.8 L IS USM (Simulated)</p>
+                    <p><strong class="text-blue-300">Timestamp:</strong> ${new Date().toLocaleString()} (Simulated)</p>
+                    <p><strong class="text-blue-300">GPS Coordinates:</strong> 23.8103° N, 90.4125° E (Simulated - Near Dhaka)</p>
+                    <p><strong class="text-blue-300">Software:</strong> Adobe Photoshop 24.0 (Simulated)</p>
+                    <p><strong class="text-blue-300">Image Size:</strong> 4096x2160 (Simulated)</p>
+                `;
+            }
+        });
+        
+        // --- Reverse Image Search Logic ---
+        const imageUrlInput = document.getElementById('image-url-input');
+        document.querySelectorAll('.reverse-image-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const imageUrl = imageUrlInput.value.trim();
+                if(imageUrl){
+                    const url = button.dataset.url.replace('{}', encodeURIComponent(imageUrl));
+                    window.open(url, '_blank');
+                }
+            });
+        });
+
+        // --- IP/DNS Lookup Logic ---
+        const ipDnsInput = document.getElementById('ip-dns-input');
+        document.querySelectorAll('.ip-dns-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const input = ipDnsInput.value.trim();
+                if(input){
+                    const url = button.dataset.url.replace('{}', encodeURIComponent(input));
+                    window.open(url, '_blank');
+                }
+            });
+        });
+
+        // --- Subdomain Finder Logic ---
+        const domainInput = document.getElementById('domain-input');
+        document.querySelectorAll('.subdomain-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                const domain = domainInput.value.trim();
+                if(domain){
+                    const url = button.dataset.url.replace(/{}/g, encodeURIComponent(domain));
+                    window.open(url, '_blank');
+                }
+            });
+        });
+        
+        // --- Wayback Machine Logic ---
+        const waybackInput = document.getElementById('wayback-input');
+        const waybackSearchBtn = document.getElementById('wayback-search-btn');
+        waybackSearchBtn.addEventListener('click', () => {
+            const domain = waybackInput.value.trim();
+            if (domain) {
+                const url = `https://web.archive.org/web/*/${encodeURIComponent(domain)}`;
+                window.open(url, '_blank');
+            }
+        });
+        
+        // --- Hashing Calculator Logic ---
+        const hashInput = document.getElementById('hash-input');
+        const md5Output = document.getElementById('md5-output');
+        const sha1Output = document.getElementById('sha1-output');
+        const sha256Output = document.getElementById('sha256-output');
+        const sha512Output = document.getElementById('sha512-output');
+        
+        hashInput.addEventListener('input', () => {
+            const text = hashInput.value;
+            if (text) {
+                md5Output.value = CryptoJS.MD5(text).toString();
+                sha1Output.value = CryptoJS.SHA1(text).toString();
+                sha256Output.value = CryptoJS.SHA256(text).toString();
+                sha512Output.value = CryptoJS.SHA512(text).toString();
+            } else {
+                md5Output.value = '';
+                sha1Output.value = '';
+                sha256Output.value = '';
+                sha512Output.value = '';
+            }
+        });
+    });
+    </script>
+</body>
+</html>
